@@ -280,12 +280,13 @@ function AdvancedCalculator({ onBack }) {
 }
 
 function ProgressChart({ portfolios }) {
+    const portfolioColors = ['#d97706', '#2563eb', '#dc2626', '#7c3aed', '#0f766e', '#be123c'];
     const chartWidth = 720;
     const chartHeight = 280;
     const padding = { top: 20, right: 20, bottom: 42, left: 68 };
     const chartInnerWidth = chartWidth - padding.left - padding.right;
     const chartInnerHeight = chartHeight - padding.top - padding.bottom;
-    const validPortfolios = portfolios.map(getPortfolioResult);
+    const validPortfolios = portfolios.map((portfolio) => ({ ...getPortfolioResult(portfolio), name: portfolio.name }));
     const maxYears = Math.max(...validPortfolios.map((portfolio) => portfolio.numbers.years));
     const points = Array.from({ length: maxYears + 1 }, (_, year) => {
         const totalsAtYear = validPortfolios.reduce(
@@ -307,6 +308,19 @@ function ProgressChart({ portfolios }) {
     const y = (value) => padding.top + chartInnerHeight - (value / maximumValue) * chartInnerHeight;
     const valuePath = points.map((point) => `${x(point.year)},${y(point.value)}`).join(' ');
     const contributionPath = points.map((point) => `${x(point.year)},${y(point.contributions)}`).join(' ');
+    const portfolioPaths = validPortfolios.map((portfolio, index) => {
+        const path = points
+            .map((point) => {
+                const months = Math.min(point.year, portfolio.numbers.years) * 12;
+                const value = calculateBalance({ ...portfolio.numbers, years: months / 12 });
+                return `${x(point.year)},${y(value)}`;
+            })
+            .join(' ');
+        const finalPoint = points[points.length - 1];
+        const finalMonths = Math.min(finalPoint.year, portfolio.numbers.years) * 12;
+        const finalValue = calculateBalance({ ...portfolio.numbers, years: finalMonths / 12 });
+        return { color: portfolioColors[index % portfolioColors.length], finalValue, path };
+    });
     const middleYear = Math.round(maxYears / 2);
 
     return (
@@ -318,14 +332,25 @@ function ProgressChart({ portfolios }) {
                     <span><span className="mr-1 inline-block h-2 w-2 rounded-full bg-neutral-400" />Contributions</span>
                 </span>
             </figcaption>
+            <div className="mb-4 flex flex-wrap gap-x-4 gap-y-2 text-sm text-neutral-600" aria-label="Portfolio sizes">
+                {portfolioPaths.map((portfolioPath, index) => (
+                    <span key={portfolios[index].name + index}>
+                        <span className="mr-1 inline-block h-2 w-2 rounded-full" style={{ backgroundColor: portfolioPath.color }} />
+                        {portfolios[index].name}: {formatCurrency(portfolioPath.finalValue)}
+                    </span>
+                ))}
+            </div>
             <svg className="h-auto w-full" viewBox={`0 0 ${chartWidth} ${chartHeight}`} role="img" aria-labelledby="progress-chart-title progress-chart-description">
                 <title id="progress-chart-title">Combined portfolio progress</title>
                 <desc id="progress-chart-description">
-                    Portfolio value and contributions increase over {maxYears} years. The final combined portfolio value is {formatCurrency(points[points.length - 1].value)}.
+                    Individual portfolio values, total contributions, and combined value increase over {maxYears} years. The final combined portfolio value is {formatCurrency(points[points.length - 1].value)}. {portfolioPaths.map((portfolioPath, index) => `${portfolios[index].name} ends at ${formatCurrency(portfolioPath.finalValue)}. `)}
                 </desc>
                 <line x1={padding.left} y1={padding.top} x2={padding.left} y2={chartHeight - padding.bottom} stroke="#d4d4d4" />
                 <line x1={padding.left} y1={chartHeight - padding.bottom} x2={chartWidth - padding.right} y2={chartHeight - padding.bottom} stroke="#d4d4d4" />
                 <polyline points={contributionPath} fill="none" stroke="#a3a3a3" strokeWidth="3" strokeDasharray="6 5" />
+                {portfolioPaths.map((portfolioPath, index) => (
+                    <polyline key={portfolios[index].name + index} points={portfolioPath.path} fill="none" stroke={portfolioPath.color} strokeWidth="2" opacity="0.8" />
+                ))}
                 <polyline points={valuePath} fill="none" stroke="#016968" strokeWidth="4" />
                 <text x={padding.left} y={chartHeight - 12} fill="#525252" fontSize="13">Year 0</text>
                 <text x={x(middleYear)} y={chartHeight - 12} fill="#525252" fontSize="13" textAnchor="middle">Year {middleYear}</text>
@@ -333,7 +358,7 @@ function ProgressChart({ portfolios }) {
                 <text x="8" y={padding.top + 5} fill="#525252" fontSize="13">{formatCurrency(maximumValue)}</text>
                 <text x="8" y={chartHeight - padding.bottom} fill="#525252" fontSize="13">$0</text>
             </svg>
-            <p className="sr-only">The solid line shows combined portfolio value. The dashed line shows total contributions.</p>
+            <p className="sr-only">The thick teal line shows combined portfolio value, the dashed line shows total contributions, and each colored line shows an individual portfolio.</p>
         </figure>
     );
 }
