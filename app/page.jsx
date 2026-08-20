@@ -28,12 +28,14 @@ export default function Page() {
                 {/* <Link href="https://docs.netlify.com/frameworks/next-js/overview/" className="btn btn-lg sm:min-w-64">
                     Read the Docs
                 </Link> */}
-                <Link href="https://www.hytti69.com" className="btn btn-lg sm:min-w-64">
-                    Visit hytti69.com
-                </Link>
-                <Link href="/calculator" className="btn btn-lg sm:min-w-64">
-                    Use the compounding interest calculator
-                </Link>
+                <div className="flex flex-wrap gap-4">
+                    <Link href="https://www.hytti69.com" className="btn btn-lg sm:min-w-64">
+                        Visit hytti69.com
+                    </Link>
+                    <Link href="/calculator" className="btn btn-lg sm:min-w-64">
+                        Calculator
+                    </Link>
+                </div>
             </section>
             {/* {!!ctx && (
                 <section className="flex flex-col gap-4">
