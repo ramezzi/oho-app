@@ -21,16 +21,21 @@ export default function Page() {
         <div className="flex flex-col gap-12 sm:gap-16">
             <section>
                 <ContextAlert className="mb-6" />
-                <h1 className="mb-4">Netlify Platform Starter – Next.js</h1>
+                <h1 className="mb-4">Welcome to oHo</h1>
                 <p className="mb-6 text-lg">
-                    Deploy the latest version of Next.js — including Turbopack, React Compiler, and the new caching APIs
-                    — on Netlify in seconds. No configuration or custom adapter required.
+                    Play hytti69 or use the compounding interest calculator to see how much you can earn with your savings.
                 </p>
-                <Link href="https://docs.netlify.com/frameworks/next-js/overview/" className="btn btn-lg sm:min-w-64">
+                {/* <Link href="https://docs.netlify.com/frameworks/next-js/overview/" className="btn btn-lg sm:min-w-64">
                     Read the Docs
+                </Link> */}
+                <Link href="https://www.hytti69.com" className="btn btn-lg sm:min-w-64">
+                    Visit hytti69.com
+                </Link>
+                <Link href="/calculator" className="btn btn-lg sm:min-w-64">
+                    Use the compounding interest calculator
                 </Link>
             </section>
-            {!!ctx && (
+            {/* {!!ctx && (
                 <section className="flex flex-col gap-4">
                     <Markdown content={contextExplainer} />
                     <RuntimeContextCard />
@@ -39,7 +44,7 @@ export default function Page() {
             <section className="flex flex-col gap-4">
                 <Markdown content={preDynamicContentExplainer} />
                 <RandomQuote />
-            </section>
+            </section> */}
         </div>
     );
 }
